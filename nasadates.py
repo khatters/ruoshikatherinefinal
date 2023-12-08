@@ -28,14 +28,13 @@ def close_connection(conn):
 def get_startdate_data(cur, conn, api_token, project_ids, limit=25): 
     all_data = []
     for project_id in project_ids:
-        # cur.execute('SELECT COUNT(*) FROM projects WHERE projectId = ?', (project_id,))
-        # count = cur.fetchone()[0]
+        
 
         api_url = "https://techport.nasa.gov/api/projects/" + str(project_id)
         params = {
             "projectId": project_id,
             "limit": limit, 
-            #"offset": count
+            
         }
 
         headers = {
@@ -64,88 +63,79 @@ def orgainize_data(all_data):
             project_id = projects.get('projectId')
             #print("This is project id:", project_id)
             start_date = projects.get("startDateString")
+            print(type(start_date))
+            #print(f"Project ID: {project_id}, Start Date: {start_date}")
             project_list.append((project_id, start_date))
         
-    #print(project_list)
+    print(project_list)
     return project_list
 
 
-# def insert_project_data(project_list, cur, conn):
-#     cur.execute('SELECT COUNT(*) as row_count FROM projdate')
-#     row_count = cur.fetchone()[0]
-#     #print("This is row_count:", row_count)
-   
-#     # start_index = (row_count // 25) * 25
-#     # end_index = start_index+25
-#     to_insert = project_list
-#     #print("This is the to insert:", to_insert)
-#     #print("this is the length:", len(to_insert))
-  
-#     for project_data in to_insert:
-#         #print(project_data)
-#         projectId = project_data[0]
-#         startdate = project_data[1]
-
-#         cur.execute('''
-#             INSERT OR IGNORE INTO projdate (projectId, startdate)
-#             VALUES (?, ?)
-#             ''', (projectId, startdate))
-#     print(f"Inserted project: {projectId}, {startdate}")
-
-#     conn.commit()
-
 def insert_project_data(project_list, cur, conn):
     for project_data in project_list:
+        print("This is the initial value:", project_data)
         project_id, startdate = project_data
+        print(f"Original Start Date ({project_id}): {startdate}")
 
-        cur.execute('''
-            INSERT OR IGNORE INTO projects (projectId, title, startdate)
-            VALUES (?, NULL, NULL)
-            ''', (project_id,))
+        try:
+            startdate = datetime.strptime(startdate, "%b %Y").strftime("%Y-%m-%d")
+            print(f"Parsed Start Date ({project_id}): {startdate}")
+        except ValueError:
+            print(f"Error parsing startdate: {startdate}")
+            startdate = None
 
-        cur.execute('''
-            UPDATE projects
-            SET startdate = COALESCE(?, startdate)
-            WHERE projectId = ?
-            ''', (startdate, project_id))
+        if startdate is not None:
+            cur.execute('''
+                INSERT OR IGNORE INTO projects (projectId, title, startdate)
+                VALUES (?, NULL, NULL)
+                ''', (project_id,))
+
+            cur.execute('''
+                UPDATE projects
+                SET startdate = ?
+                WHERE projectId = ?
+                ''', (startdate, project_id))
+            print(f"Inserted/Updated project: {project_id}, {startdate}")
+        else:
+            print(f"Skipping project: {project_id} due to parsing error.")
+
+        # cur.execute('''
+        #     INSERT OR IGNORE INTO projects (projectId, title, startdate)
+        #     VALUES (?, NULL, NULL)
+        #     ''', (project_id, startdate))
+
+        # cur.execute('''
+        #     UPDATE projects
+        #     SET startdate = COALESCE(?, startdate)
+        #     WHERE projectId = ?
+        #     ''', (startdate, project_id))
+        
 
     conn.commit()
-    print(f"Inserted/Updated project: {project_id}, {startdate}")
-
-
-# def get_shared_data(projectId, title, startdate, conn, cur, ):
-#     tuple_list = []
-#     query = """SELECT projects.title, projdate.startdate, projdate.projectId 
-#     FROM projects 
-#     JOIN projdate ON projects.projectId = projdate.projectId
-#     WHERE projects.title == ? AND projdate.startdate == ? AND projdate.projectId ==? """
-#     #print("SQL Query:", query)
-#     #print("Parameters:", (title, startdate, projectId))
-
-#     cur.execute(query, (title, startdate, projectId))
-#     result = cur.fetchall()
-#     #print(result)
-#     return result
 
 #MATPLOTLIB EQUATIONS
-# def extract_year(startdate):
-#     try:
-#         date_obj = datetime.strptime(startdate, "%b %Y")
-#         return date_obj.year
-#     except ValueError:
-#         return None
+def extract_year(startdate):
+    try:
+        date_obj = datetime.strptime(startdate, "%b %Y")
+        #print("Parsed startdate:", date_obj)
+        return date_obj.year
+    except ValueError:
+        print("Error parsing startdate:", startdate) #see if this stupid thing isn't parsing my dates bc of the weird format
+        return None
 
 
-# def create_pie_chart(year_distribution):
-#     labels = list(year_distribution.keys())
-#     sizes = list(year_distribution.values())
-#     print("Testing Plotlib")
-#     plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140)
-#     plt.axis('equal')  # draw pie in circle 
-#     plt.title('Distribution of Years in Projects')
-#     plt.show(block=True)
-# #END MATPLOTLIB EQUATIONS 
+def create_pie_chart(year_distribution):
+    labels = list(year_distribution.keys())
+    sizes = list(year_distribution.values())
+    print("Labels:", labels)
+    print("Sizes:", sizes)
 
+
+    plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140)
+    plt.axis('equal')  # draw pie in circle 
+    plt.title('Distribution of Years in Projects')
+    plt.show()
+#END MATPLOTLIB EQUATIONS
 
 # Function to run the functions in nasadates.py with retrieved project IDs
 def run_nasadates_script(project_ids):
@@ -154,26 +144,24 @@ def run_nasadates_script(project_ids):
 
     # NASA API token
     api_token = "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUZWNoUG9ydCIsImV4cCI6MTcwMTg5OTQ5NiwibmJmIjoxNzAxODEzMDk2LCJTRVNTSU9OX0lEIjoidTIwbHhKNmxNMzJqdTRFMXRWVDdaeW5EY0VTbEw0WUpJRzVpIiwiRklOR0VSUFJJTlRfSEFTSCI6IkU3NzNBNzRGQUYyQkY0N0Q0MDA2QkJCQUJCNkMzRkE4RDlGMTRFRUE5MTI0MjlBRkU1NThFNjc3NjVBRjE1NTUifQ.g3aSUWPbPm66f-d6l5Z7Bcq3DRKHUa3tUTrEDVa9x2Q"
-
-
     result = get_startdate_data(cur, conn, api_token, project_ids, limit=25)
+    
+    if result:
+        formatted_data = orgainize_data(result)
 
-    if result: 
-        #year_distribution = {} #FOR MATPLOTLIB
-        for project_data in result:
-            formatted_data = orgainize_data(result)
-            insert_project_data(formatted_data, cur, conn)
+        # Call the insert_project_data function
+        insert_project_data(formatted_data, cur, conn)
 
-            # shared_data = get_shared_data(project_data[0], project_data[1], project_data[2], conn, cur)
-            # print("Shared Data:", shared_data)
+        year_distribution = {}
+        for project_id, start_date in formatted_data:
+            year = extract_year(start_date)
+            if year:
+                year_distribution[year] = year_distribution.get(year, 0) + 1
 
-            #matplotlib calcs: 
-            # for project_id, start_date in formatted_data: 
-            #     year = extract_year(start_date)
-            #     if year: 
-            #         year_distribution[year]=year_distribution.get(year, 0)+1
+        # Create and show the pie chart
+        create_pie_chart(year_distribution)
 
-            # create_pie_chart(year_distribution)
+    
 
     conn.commit()
     close_connection(conn)

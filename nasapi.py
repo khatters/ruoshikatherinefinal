@@ -17,7 +17,7 @@ def create_database(db_name): #don't mention db_name anywhere else..
                 title TEXT,
                 acronym TEXT,
                 website TEXT,
-                startdate TEXT
+                startdate DATE
             )
         ''')
 
@@ -86,6 +86,7 @@ def insert_project_data(project_list, cur, conn):
   
     for project_data in to_insert:
         projectId, title = project_data
+        
         cur.execute('''
             INSERT INTO projects (projectId, title)
             VALUES (?, ?)
