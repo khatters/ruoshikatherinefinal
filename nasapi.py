@@ -96,7 +96,7 @@ def insert_project_data(project_list, cur, conn):
     conn.commit()
 
 #ending function stuff: 
-cur, conn = create_database('spacexprojects2.db')
+cur, conn = create_database('spacexprojects3.db')
 
 
 api_key = "A7tjXzHzLQYWzLz3cguCfLqhKCGuXe4XRa98a84O" #nasa general API token

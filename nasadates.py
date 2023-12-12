@@ -71,6 +71,38 @@ def orgainize_data(all_data):
     return project_list
 
 
+# def insert_project_data(project_list, cur, conn):
+#     for project_data in project_list:
+#         print("This is the initial value:", project_data)
+#         project_id, startdate = project_data
+#         print(f"Original Start Date ({project_id}): {startdate}")
+
+#         try:
+#             startdate = datetime.strptime(startdate, "%b %Y").strftime("%Y-%m-d%") #make it only year and month
+#             print(f"Parsed Start Date ({project_id}): {startdate}")
+#         except ValueError:
+#             print(f"Error parsing startdate: {startdate}")
+#             startdate = None
+
+#         if startdate is not None:
+#             cur.execute('''
+#                 INSERT OR IGNORE INTO projects (projectId, title, startdate)
+#                 VALUES (?, NULL, NULL)
+#                 ''', (project_id,))
+
+#             cur.execute('''
+#                 UPDATE projects
+#                 SET startdate = ?
+#                 WHERE projectId = ?
+#                 ''', (startdate, project_id))
+#             print(f"Inserted/Updated project: {project_id}, {startdate}")
+#         else:
+#             print(f"Skipping project: {project_id} due to parsing error.")
+
+   
+        
+
+#     conn.commit()
 def insert_project_data(project_list, cur, conn):
     for project_data in project_list:
         print("This is the initial value:", project_data)
@@ -113,6 +145,7 @@ def insert_project_data(project_list, cur, conn):
 
     conn.commit()
 
+
 #MATPLOTLIB EQUATIONS
 def extract_year(startdate):
     try:
@@ -140,7 +173,7 @@ def create_pie_chart(year_distribution):
 # Function to run the functions in nasadates.py with retrieved project IDs
 def run_nasadates_script(project_ids):
 
-    conn, cur = create_connection('spacexprojects2.db')
+    conn, cur = create_connection('spacexprojects3.db')
 
     # NASA API token
     api_token = "eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJUZWNoUG9ydCIsImV4cCI6MTcwMTg5OTQ5NiwibmJmIjoxNzAxODEzMDk2LCJTRVNTSU9OX0lEIjoidTIwbHhKNmxNMzJqdTRFMXRWVDdaeW5EY0VTbEw0WUpJRzVpIiwiRklOR0VSUFJJTlRfSEFTSCI6IkU3NzNBNzRGQUYyQkY0N0Q0MDA2QkJCQUJCNkMzRkE4RDlGMTRFRUE5MTI0MjlBRkU1NThFNjc3NjVBRjE1NTUifQ.g3aSUWPbPm66f-d6l5Z7Bcq3DRKHUa3tUTrEDVa9x2Q"
@@ -168,7 +201,7 @@ def run_nasadates_script(project_ids):
 
 if __name__ == "__main__":
     # Retrieve project IDs from the database
-    conn, cur = create_connection('spacexprojects2.db') #GSI -- THIS IS HARDCODED
+    conn, cur = create_connection('spacexprojects3.db') #GSI -- THIS IS HARDCODED
     project_ids = get_project_ids(cur)
     close_connection(conn)
 
