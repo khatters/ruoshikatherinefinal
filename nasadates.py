@@ -157,16 +157,52 @@ def extract_year(startdate):
         return None
 
 
-def create_pie_chart(year_distribution):
+# def create_pie_chart(year_distribution):
+#     labels = list(year_distribution.keys())
+#     sizes = list(year_distribution.values())
+#     print("Labels:", labels)
+#     print("Sizes:", sizes)
+
+
+#     plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140)
+#     plt.axis('equal')  # draw pie in circle 
+#     plt.title('Distribution of Years in Projects')
+#     plt.show()
+
+# #new stuff
+# def create_bar_chart(year_distribution):
+#     years = list(year_distribution.keys())
+#     projects_count = list(year_distribution.values())
+
+#     plt.bar(years, projects_count, color='blue')
+#     plt.xlabel('Year')
+#     plt.ylabel('Number of Projects')
+#     plt.title('Distribution of Projects Across Years')
+#     plt.show()
+
+def create_charts(year_distribution):
+    # pie chart
     labels = list(year_distribution.keys())
     sizes = list(year_distribution.values())
-    print("Labels:", labels)
-    print("Sizes:", sizes)
 
+    plt.figure(figsize=(12, 6))
 
+    plt.subplot(1, 2, 1)
     plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140)
     plt.axis('equal')  # draw pie in circle 
     plt.title('Distribution of Years in Projects')
+
+    #  bar chart
+    plt.subplot(1, 2, 2)
+    years = list(year_distribution.keys())
+    projects_count = list(year_distribution.values())
+
+    plt.bar(years, projects_count, color='blue')
+    plt.xlabel('Year')
+    plt.ylabel('Number of Projects')
+    plt.title('Distribution of Projects Across Years')
+
+    plt.tight_layout()  # Ensures proper spacing between subplots
     plt.show()
 #END MATPLOTLIB EQUATIONS
 
@@ -192,7 +228,8 @@ def run_nasadates_script(project_ids):
                 year_distribution[year] = year_distribution.get(year, 0) + 1
 
         # Create and show the pie chart
-        create_pie_chart(year_distribution)
+        #create_pie_chart(year_distribution)
+        create_charts(year_distribution)
 
     
 
