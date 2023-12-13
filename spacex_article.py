@@ -68,8 +68,6 @@ def fetch_spacex_articles(api_key, conn):
 
         
         # cursor.close()
-    
-
 
 def create_pie_chart():
     
@@ -130,9 +128,8 @@ def create_bar_chart():
     
     plt.show()
 
+
 '''
-
-
 def create_line_chart():
    
     conn = sqlite3.connect('spacexprojects2.db')
@@ -163,6 +160,7 @@ def create_line_chart():
     
     plt.show()
 '''
+
 
 def corr_line_graph():
    
