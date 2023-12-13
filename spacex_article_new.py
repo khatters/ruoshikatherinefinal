@@ -17,7 +17,7 @@ def fetch_spacex_articles(api_key, conn):
             searching_year INTEGER 
         )
     ''')
-
+ 
     # Check the last searching_year value in spacex_articles
     cursor.execute("SELECT searching_year FROM spacex_articles ORDER BY ROWID DESC LIMIT 1")
     last_searching_year = cursor.fetchone()
