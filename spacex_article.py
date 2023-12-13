@@ -255,7 +255,6 @@ def corr_pie_chart():
 
     #plt.show()
 
-
 def corr_calculation():
     
     conn = sqlite3.connect('spacexprojects2.db')
