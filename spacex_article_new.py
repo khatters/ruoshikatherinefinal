@@ -3,7 +3,7 @@ import requests
 import time
 import sqlite3
 import matplotlib.pyplot as plt
-
+  
 
 def fetch_spacex_articles(api_key, conn):
     base_url = "https://api.nytimes.com/svc/search/v2/articlesearch.json"
